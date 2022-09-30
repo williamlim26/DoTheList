@@ -1,112 +1,112 @@
-import { StyleSheet, Text, View, TextInput, Pressable } from "react-native"
-import { useState } from "react"
-import Button from "./src/components/Button"
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Pressable,
+  Keyboard,
+  KeyboardAvoidingView,
+} from 'react-native'
+import { useState } from 'react'
+import { palette } from './theme/palette'
+import Header from './src/components/Header'
+import RemoveButton from './src/components/RemoveButton'
+import DismissKeyboard from './src/components/DismissKeyboard'
 
-export default function App() {
-  const [input, setInput] = useState("")
+const App = () => {
+  const [input, setInput] = useState('')
   const [list, setList] = useState([])
 
-  console.log(list)
-
-  const handleAddToList = () => {
-    if (input !== '') {
-      setList([...list, { isChecked: false, text: input }])
-      setInput("")
-    }
-  }
-
   const handleClickCheckBox = (index) => {
-    console.log(index)
     const copiedList = [...list]
-    const { isChecked, text} = copiedList[index]
-    setList([...list.slice(0, index), { isChecked: !isChecked, text}, ...list.slice(index+1)])
+    const { isChecked, text } = copiedList[index]
+    setList([
+      ...list.slice(0, index),
+      { isChecked: !isChecked, text },
+      ...list.slice(index + 1),
+    ])
   }
 
-  const handleRemoveCheckedItems = () => {
-    const copiedList = [...list].filter(({ isChecked }) => !isChecked)
-    setList(copiedList)
+  const handleSubmitEditing = ({
+    nativeEvent: { text, eventCount, target },
+  }) => {
+    if (text !== '') {
+      setList([...list, { isChecked: false, text }])
+      setInput('')
+    } else {
+      Keyboard.dismiss()
+    }
   }
 
   const Item = ({ isChecked, value, index }) => (
     <View style={{ marginTop: 10 }}>
       <View style={styles.row}>
         <View style={styles.col1}>
-        <Pressable
-          style={isChecked ? styles.checked : styles.unChecked}
-          onPress={() => handleClickCheckBox(index)}
-        />
+          <Pressable
+            style={isChecked ? styles.checked : styles.unChecked}
+            onPress={() => handleClickCheckBox(index)}
+          />
         </View>
         <View style={styles.col11}>
-          <Text style={{ fontSize: 17, justifyContent: 'center', height: 22 }}>{value}</Text>
+          <Text style={{ fontSize: 17, justifyContent: 'center', height: 22 }}>
+            {value}
+          </Text>
         </View>
       </View>
     </View>
   )
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Will's Appa</Text>
-      <View style={styles.row}>
-        <View style={styles.col10}>
-          <TextInput
-            style={styles.input}
-            onChangeText={setInput}
-            value={input}
-          />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <DismissKeyboard>
+        <View style={styles.appContainer}>
+          <View>
+            <Header />
+            <TextInput
+              style={styles.input}
+              blurOnSubmit={false}
+              onChangeText={setInput}
+              returnKeyType={input === '' ? 'done' : 'send'}
+              value={input}
+              onSubmitEditing={handleSubmitEditing}
+            />
+            <View
+              style={{ borderTopWidth: 1, marginTop: 15, marginBottom: 5 }}
+            />
+            {list.map(({ text, isChecked }, index) => (
+              <Item
+                key={index}
+                value={text}
+                isChecked={isChecked}
+                index={index}
+              />
+            ))}
+          </View>
+          {!!list.length && <RemoveButton list={list} setList={setList} />}
         </View>
-        <View style={styles.col2}>
-          <Pressable
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#03DAC5',
-              height: 40,
-            }}
-            onPress={handleAddToList}
-          >
-            <Text style={styles.text}>Add</Text>
-          </Pressable>
-        </View>
-      </View>
-      <View style={{ borderTopWidth: 1, marginTop: 15, marginBottom: 5 }} />
-      {list.map(({text, isChecked}, index) => (
-        <Item key={index} value={text} isChecked={isChecked} index={index} />
-      ))}
-      <Pressable
-        style={{
-          marginTop: 15,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'red',
-          height: 40,
-        }}
-        onPress={handleRemoveCheckedItems}
-      >
-        <Text style={styles.text}>Remove</Text>
-      </Pressable>
-    </View>
+      </DismissKeyboard>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fff",
+  appContainer: {
+    backgroundColor: '#fff',
     marginTop: 30,
     padding: 15,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '95%',
   },
   input: {
     height: 40,
     marginTop: 10,
-    borderTopWidth: 0.5,
-    borderLeftWidth: 0.5,
-    borderBottomWidth: 0.5,
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
-    borderRight: "none",
+    borderWidth: 0.5,
+    borderRadius: 5,
     padding: 10,
   },
   text: {
@@ -117,10 +117,10 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   row: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "flex-end",
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-end',
   },
   col1: { flex: 1 },
   col2: { flex: 2 },
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     borderRadius: '50%',
     height: 25,
     width: 25,
-    backgroundColor: 'green',
+    backgroundColor: palette.primary.main,
   },
   unChecked: {
     borderStyle: 'solid',
@@ -151,3 +151,5 @@ const styles = StyleSheet.create({
     width: 25,
   },
 })
+
+export default App
