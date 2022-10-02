@@ -1,25 +1,20 @@
 import {StyleSheet, Text, View, Pressable } from 'react-native'
 import { palette } from '../../theme/palette'
 
-const ListItem = ({ isChecked, value, index, onPress }) => {
-  return (
-    <View style={{ marginTop: 10 }}>
-      <View style={styles.row}>
-        <View style={styles.col1}>
-          <Pressable
-            style={isChecked ? styles.checked : styles.unChecked}
-            onPress={() => onPress(index)}
-          />
-        </View>
-        <View style={styles.col11}>
-          <Text style={{ fontSize: 17, justifyContent: 'center', height: 22 }}>
-            {value}
-          </Text>
-        </View>
+const ListItem = ({ isChecked, value, index, onPress }) => (
+  <Pressable style={{ marginTop: 10 }} onPress={() => onPress(index)}>
+    <View style={styles.row}>
+      <View style={styles.col1}>
+        <View style={isChecked ? styles.checked : styles.unChecked} />
+      </View>
+      <View style={styles.col11}>
+        <Text style={{ fontSize: 17, justifyContent: 'center', height: 22 }}>
+          {value}
+        </Text>
       </View>
     </View>
-  )
-}
+  </Pressable>
+)
 
 const styles = StyleSheet.create({
   checked: {
